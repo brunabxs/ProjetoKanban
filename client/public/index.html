@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <title>Projeto Kanban</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="stylesheet" type="text/css" href="css/jquery-ui-1.10.4.custom.min.css" />
+    <script type="text/javascript" src="js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-1.10.4.custom.min.js"></script>
+    <script type="text/javascript" src="js/knockout-3.0.0.js"></script>
+    <script type="text/javascript" src="js/knockout-mapping.js"></script>
+    <script type="text/javascript" src="js/knockout-sortable.js"></script>
+    <script type="text/javascript" src="js/classes/class-util.js"></script>
+    <script type="text/javascript" src="js/classes/class-onlinepersist.js"></script>
+    <script type="text/javascript" src="js/classes/class-offlinepersist.js"></script>
+    <script type="text/javascript" src="js/classes/class-persist.js"></script>
+    <script type="text/javascript" src="js/classes/class-ko.js"></script>
+    <script type="text/javascript" src="js/script.js"></script>
+  </head>
+  
+  <body>
+    <nav>
+      <a href="#" id="btnNewSection" class="action-button animate green">New Section</a>
+      <a href="#" id="btnNewTask" class="action-button animate yellow" data-bind="visible: defaultSection()">New Task</a>
+      <ul id="infos">
+      <!-- ko if:isOfflineModeOn() -->
+        <li id="offline"><span>Working Offline</span></li>
+      <!-- /ko -->
+      <!-- ko if:lastSync() -->
+        <li id="lastSync">Last Sync: <!-- ko text:lastSync().toLocaleString() --><!-- /ko --></li>
+      <!-- /ko -->
+      </ul>
+    </nav>
+    
+    <div id="wrapper">
+      <div id="sectionsWrapper" data-bind="foreach: {data: visibleSections, as: 'section'}">
+        <section class="section" data-bind="visible: section.show(), style: { width: function(){return (100 / $root.visibleSections().length) + '%';}() }">
+          <header>
+            <h1>
+              <span class="section-name" data-bind="visible: !section.name.editing(), text: section.name, click: section.name.startEdit"></span>
+              <input class="section-name" data-bind="visible: section.name.editing(), value: section.name, valueUpdate: 'input', hasFocus: section.name.editing" />
+              
+              <div data-bind="attr:{class: wipLevel}, click: section.maxWip.startEdit">
+                <span class="section-wip" data-bind="visible: !section.maxWip.editing(), text: section.maxWip() ? section.maxWip : 'No'"></span>
+                <input class="section-wip" type="number" data-bind="visible: section.maxWip.editing(), value: section.maxWip, valueUpdate: 'input', hasFocus: section.maxWip.editing" />
+              </div>
+              
+              <span id="btnRemoveSection" class="section-icon remove" data-bind="visible: !section.isNew() && !section.name.editing() && !section.maxWip.editing(), click: function(){$parent.removeSection(section)}"></span>
+            </h1>
+          </header>
+          
+          <p class="warning" data-bind="visible: section.isEmpty()">No task was found</p>
+          <div class="tasks" data-bind="sortable: { data: section.tasks, as: 'task', template: 'task-template', afterMove: section.moveTask, options: { placeholder: 'ui-state-highlight', connectWith: '.tasks', start: function(){$root.movingTask(true);}, stop: function(){$root.movingTask(false);} } }"></div>
+        </section>        
+      </div>
+    <div>
+    
+    <div id="dialogSection">
+        <form id="formSection" name="formSection" data-bind="submit: createSection">
+          <section id="newSection">
+            <!-- ko if: newSection() -->
+              <!-- ko template: { name: 'section-template', data: newSection(), as: 'section' } --><!-- /ko -->
+            <!-- /ko -->
+            <footer>
+              <a href="#" id="btnConfirmSection" class="action-button animate green">Confirm</a>
+              <a href="#" id="btnCancelSection" class="action-button animate red">Cancel</a>
+            </footer>
+          </section>
+        </form>
+    </div>
+    
+    <script type="text/html" id="section-template">
+      <article class="section">
+          <header>
+            <h1>Section</h1>
+          </header>
+          <input class="section-id" placeholder="Write your section id" data-bind="value: section.id" />
+          <input class="section-name" placeholder="Write your section name" data-bind="value: section.name" />
+          <input class="section-wip" type="number" placeholder="Write your section max wip (blank for no wip)" data-bind="value: section.maxWip" />
+      </article>
+    </script>
+    
+    <div id="dialogTask">
+        <form id="formTask" name="formTask" data-bind="submit: createTask">
+          <section id="newTask">
+            <!-- ko if: newTask() -->
+              <!-- ko template: { name: 'task-template', data: newTask(), as: 'task' } --><!-- /ko -->
+            <!-- /ko -->
+            <footer>
+              <a href="#" id="btnConfirmTask" class="action-button animate green">Confirm</a>
+              <a href="#" id="btnCancelTask" class="action-button animate red">Cancel</a>
+            </footer>
+          </section>
+        </form>
+    </div>
+    
+    <script type="text/html" id="task-template">
+      <article data-bind="attr: { class: 'task ' + task.type() }, visible: task.show()">
+        <header>
+          <h1 class="task-title" data-bind="visible: !task.title.editing(), text: task.title, click: task.title.startEdit"></h1>
+          <input class="task-title" placeholder="Write your task title" data-bind="visible: task.title.editing(), value: task.completeTitle, valueUpdate: 'input', hasFocus: task.title.editing" />
+          
+          <span class="task-project" data-bind="text: task.project"></span>
+          <span id="btnRemoveTask" class="task-icon remove" data-bind="visible: !task.isNew() && !task.title.editing() && !task.description.editing(), click: function(){$parent.removeTask(task)}"></span>
+        </header>
+        
+        <div class="task-description" data-bind="visible: !task.description.editing(), html: task.completeDescription, click: task.description.startEdit"></div>
+        <textarea class="task-description" placeholder="Write your task description" data-bind="visible: task.description.editing(), value: task.description, hasFocus: task.description.editing"></textarea>
+      </article>
+    </script>
+  </body>
+</html>
