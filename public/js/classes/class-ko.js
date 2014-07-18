@@ -205,6 +205,7 @@ var TaskViewModel = function(data, isNew) {
   
   self.add = function() {
     Persist.add('task', ko.mapping.toJSON(self));
+    Persist.add('tasklog', ko.mapping.toJSON(new TaskLogViewModel({task:self.id(), fromSection:'', toSection:self.section()})));
   };
   
   self.update = function() {
@@ -244,10 +245,11 @@ var TaskViewModel = function(data, isNew) {
         arg.targetParent()[i].priority(i);
         tasks.push(arg.targetParent()[i]);
       }
+      
+      Persist.add('tasklog', ko.mapping.toJSON(new TaskLogViewModel({task:arg.targetParent()[arg.targetIndex].id(), fromSection:arg.sourceParent.id(), toSection:arg.targetParent.id()})));
     }
     
     Persist.update('tasks', ko.mapping.toJSON(tasks));
-    Persist.add('tasklog', ko.mapping.toJSON(new TaskLogViewModel({task:arg.targetParent()[arg.targetIndex].id(), fromSection:arg.sourceParent.id(), toSection:arg.targetParent.id()})));
 
     self.moving(false);
   };
