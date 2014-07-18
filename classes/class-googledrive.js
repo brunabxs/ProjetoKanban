@@ -46,9 +46,23 @@ GoogleDrive.__loadWorksheet = function(worksheet, callback) {
   });
 };
 
-GoogleDrive.__prepareOrder = function(objectsToUpload, nextOrder) {
+GoogleDrive.__prepareOrder = function(objects, objectsToUpload, nextOrder) {
   var rowsToUpload = {};
+  
   for (var i = 0; i < objectsToUpload.length; i++) {
+    var match = objects.filter(function(object){ return object.id === objectsToUpload[i].id; });
+    if (match.length > 0) {
+      objectsToUpload[i].order = match[0].order;
+    }
+  }
+
+  for (var i = 0; i < objectsToUpload.length; i++) {
+    for (var j = 0; j < i; j++) {
+      if (objectsToUpload[i].id && objectsToUpload[i].id === objectsToUpload[j].id) {
+        objectsToUpload[i].order = objectsToUpload[j].order;
+      }
+    }
+    
     // se é novo, atualiza a ordem
     if (!objectsToUpload[i].order) {
       objectsToUpload[i].order = ++nextOrder;
@@ -58,6 +72,9 @@ GoogleDrive.__prepareOrder = function(objectsToUpload, nextOrder) {
         objectsToUpload[i].id = objectsToUpload[i].order;
       }
     }
+  }
+  
+  for (var i = 0; i < objectsToUpload.length; i++) {
     rowsToUpload[objectsToUpload[i].order] = objectsToUpload[i].toObject();
   }
   
@@ -66,23 +83,28 @@ GoogleDrive.__prepareOrder = function(objectsToUpload, nextOrder) {
 
 GoogleDrive.__uploadSections = function(spreadsheet, rows, sectionsToUpload) {
   GoogleDrive.__log('Section Worksheet (%s) upload started...', GoogleDrive.SECTIONS_WORKSHEET_NAME);
+
+  GoogleDrive.__updateSections(rows);
   
-  var prep = GoogleDrive.__prepareOrder(sectionsToUpload, Section.NEXT_ORDER);
+  var prep = GoogleDrive.__prepareOrder(GoogleDrive.sections, sectionsToUpload, Section.NEXT_ORDER);
   Section.NEXT_ORDER = prep.nextOrder;
   var rowsToUpload = prep.rowsToUpload;
-  
+
   spreadsheet.add(rowsToUpload);
   spreadsheet.send(function(err) {
     GoogleDrive.__log('Section Worksheet (%s) upload ended...', GoogleDrive.SECTIONS_WORKSHEET_NAME);
     GoogleDrive.__updateSections(Util.join(rows, rowsToUpload));
+    GoogleDrive.__endUpdateSections();
     if (err) throw err;
   });
 }
 
 GoogleDrive.__uploadTasks = function(spreadsheet, rows, tasksToUpload) {
   GoogleDrive.__log('Task Worksheet (%s) upload started...', GoogleDrive.TASKS_WORKSHEET_NAME);
-  
-  var prep = GoogleDrive.__prepareOrder(tasksToUpload, Task.NEXT_ORDER);
+
+  GoogleDrive.__updateTasks(rows);
+
+  var prep = GoogleDrive.__prepareOrder(GoogleDrive.tasks, tasksToUpload, Task.NEXT_ORDER);
   Task.NEXT_ORDER = prep.nextOrder;
   var rowsToUpload = prep.rowsToUpload;
   
@@ -90,6 +112,7 @@ GoogleDrive.__uploadTasks = function(spreadsheet, rows, tasksToUpload) {
   spreadsheet.send(function(err) {
     GoogleDrive.__log('Task Worksheet (%s) upload ended...', GoogleDrive.TASKS_WORKSHEET_NAME);
     GoogleDrive.__updateTasks(Util.join(rows, rowsToUpload));
+    GoogleDrive.__endUpdateTasks();
     if (err) throw err;
   });
 }
@@ -97,7 +120,9 @@ GoogleDrive.__uploadTasks = function(spreadsheet, rows, tasksToUpload) {
 GoogleDrive.__uploadTaskLogs = function(spreadsheet, rows, taskLogsToUpload) {
   GoogleDrive.__log('TaskLog Worksheet (%s) upload started...', GoogleDrive.TASKLOGS_WORKSHEET_NAME);
   
-  var prep = GoogleDrive.__prepareOrder(taskLogsToUpload, TaskLog.NEXT_ORDER);
+  GoogleDrive.__updateTaskLogs(rows);
+  
+  var prep = GoogleDrive.__prepareOrder([], taskLogsToUpload, TaskLog.NEXT_ORDER);
   TaskLog.NEXT_ORDER = prep.nextOrder;
   var rowsToUpload = prep.rowsToUpload;
   
@@ -105,6 +130,7 @@ GoogleDrive.__uploadTaskLogs = function(spreadsheet, rows, taskLogsToUpload) {
   spreadsheet.send(function(err) {
     GoogleDrive.__log('TaskLog Worksheet (%s) upload ended...', GoogleDrive.TASKLOGS_WORKSHEET_NAME);
     GoogleDrive.__updateTaskLogs(Util.join(rows, rowsToUpload));
+    GoogleDrive.__endUpdateTaskLogs();
     if (err) throw err;
   });
 }
@@ -123,7 +149,9 @@ GoogleDrive.__updateSections = function(rows) {
   });
   
   GoogleDrive.__log('\tSection load ended...');
-  
+}
+
+GoogleDrive.__endUpdateSections = function() {
   GoogleDrive.sectionWorksheetTimeout = setTimeout(GoogleDrive.updateSections, GoogleDrive.LOCAL_DATA_REFRESH);
   GoogleDrive.sectionSemaphore.leave();  
   GoogleDrive.__setSectionsAndTasksReferences();
@@ -143,13 +171,18 @@ GoogleDrive.__updateTasks = function(rows) {
   });
   
   GoogleDrive.__log('\tTask load ended...');
-  
+}
+
+GoogleDrive.__endUpdateTasks = function() {
   GoogleDrive.taskWorksheetTimeout = setTimeout(GoogleDrive.updateTasks, GoogleDrive.LOCAL_DATA_REFRESH);
   GoogleDrive.taskSemaphore.leave();  
   GoogleDrive.__setSectionsAndTasksReferences();
 }
 
 GoogleDrive.__updateTaskLogs = function(rows) {
+}
+
+GoogleDrive.__endUpdateTaskLogs = function() {
   GoogleDrive.taskLogSemaphore.leave();  
 }
 
@@ -190,6 +223,7 @@ GoogleDrive.updateSections = function(sectionsToUpload) {
         }
         else {
           GoogleDrive.__updateSections(rows);
+          GoogleDrive.__endUpdateSections();
         }
         
         // encerra a atualização
@@ -216,6 +250,7 @@ GoogleDrive.updateTasks = function(tasksToUpload) {
         }
         else {
           GoogleDrive.__updateTasks(rows);
+          GoogleDrive.__endUpdateTasks();
         }
         
         // encerra a atualização
@@ -241,6 +276,7 @@ GoogleDrive.updateTaskLogs = function(taskLogsToUpload) {
         }
         else {
           GoogleDrive.__updateTaskLogs(rows);
+          GoogleDrive.__endUpdateTaskLogs();
         }
         
         // encerra a atualização

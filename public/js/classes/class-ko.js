@@ -43,7 +43,7 @@ var AppViewModel = function() {
   
   self.newTask = ko.observable();
   self.prepareNewTask = function() {
-    self.newTask( new TaskViewModel({id:Number(new Date()), section: self.defaultSection().id()}, true) );
+    self.newTask( new TaskViewModel({section: self.defaultSection().id()}, true) );
     self.newTask().description.editing(true);
   };
   
@@ -168,7 +168,7 @@ var SectionViewModel = function(data, isNew) {
 var TaskViewModel = function(data, isNew) {
   var self = this;
   
-  data = Util.extend(data, { id: '', section: '', priority: '', order: '', type:'normal', project:'', title: 'Task Title', description: '', show: 1, history: [] });
+  data = Util.extend(data, { id: Number(new Date()), section: '', priority: '', order: '', type:'normal', project:'', title: 'Task Title', description: '', show: 1, history: [] });
   
   ko.mapping.fromJS(data, {
     history: {
