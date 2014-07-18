@@ -74,7 +74,7 @@ function Server() {
   }));
   
   self.start = function() {
-    self.restServer.listen(8080, function (){
+    self.restServer.listen(Properties.PORT, function (){
       GoogleDrive.updateSections();
       GoogleDrive.updateTasks();
       GoogleDrive.updateTaskLogs();
