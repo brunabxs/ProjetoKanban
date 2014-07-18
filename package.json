@@ -1,0 +1,39 @@
+{
+  "name": "ProjetoKanban",
+  "version": "1.0.0",
+  "description": "Serviço de organização de tarefas em planilhas do Google Drive",
+  "main": "node-server.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brunabxs/ProjetoKanban.git"
+  },
+  "keywords": [
+    "kanban",
+    "tasks",
+    "agile",
+    "spreadsheet",
+    "google",
+    "drive",
+    "node",
+    "knockout"
+  ],
+  "author": "Bruna Xavier",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/brunabxs/ProjetoKanban/issues"
+  },
+  "homepage": "https://github.com/brunabxs/ProjetoKanban",
+  "dependencies": {
+    "async": "^0.9.0",
+    "edit-google-spreadsheet": "brunabxs/node-edit-google-spreadsheet.git",
+    "restify": "^2.8.1",
+    "semaphore": "^1.0.1"
+  },
+  "devDependencies": {}
+}
