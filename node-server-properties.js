@@ -11,8 +11,6 @@ var Properties = process.env || {};
 //Properties.PORT = 5000;
 
 Properties.LOCAL_DATA_REFRESH = 60000;
-Properties.GOOGLE_DRIVE_LOG = false;
-Properties.SERVER_APP_LOG = false;
 
 // constants
 

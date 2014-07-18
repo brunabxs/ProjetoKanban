@@ -15,8 +15,8 @@ GoogleDrive.TASKLOGS_WORKSHEET_NAME = Properties.TAKSLOGS_WORKSHEET_NAME;
 GoogleDrive.USERNAME = Properties.USERNAME;
 GoogleDrive.PASSWORD = Properties.PASSWORD;
 GoogleDrive.LOCAL_DATA_REFRESH = Properties.LOCAL_DATA_REFRESH;
-GoogleDrive.LOG = Properties.SERVER_APP_LOG;
-GoogleDrive.DEBUG = Properties.GOOGLE_DRIVE_LOG;
+GoogleDrive.LOG = false;
+GoogleDrive.DEBUG = false;
 
 // static
 GoogleDrive.lastSync = undefined;
@@ -34,7 +34,7 @@ GoogleDrive.__log = function() {
 
 GoogleDrive.__loadWorksheet = function(worksheet, callback) {
   GoogleDrive.spreadsheet.load({
-    debug: GoogleDrive.DEBUG,
+    debug: false,
     spreadsheetName: GoogleDrive.SPREADSHEET_NAME,
     worksheetName: worksheet,
     username: GoogleDrive.USERNAME,

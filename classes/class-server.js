@@ -73,8 +73,8 @@ function Server() {
     directory: './public'
   }));
   
-  self.start = function() {
-    self.restServer.listen(Properties.PORT, function (){
+  self.start = function(port) {
+    self.restServer.listen(port, function (){
       GoogleDrive.updateSections();
       GoogleDrive.updateTasks();
       GoogleDrive.updateTaskLogs();
