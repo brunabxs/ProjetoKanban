@@ -215,4 +215,3 @@ pip-log.txt
 .mr.developer.cfg
 
 node_modules/
-server/node-server-properties.js
