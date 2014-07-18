@@ -12,7 +12,6 @@ body {
 
 a.link { color: #999; text-decoration: underline; }
 a.link:hover { color: #666; }
-span.strong { font-weight: bold; }
 span.italic { font-style: italic; }
 span.underline { text-decoration: underline; }
 span.strike { text-decoration: line-through }
@@ -392,7 +391,7 @@ article.task .task-description { word-break: break-word; width: 100%; min-height
 article.task textarea.task-description { height: 120px; }
 
 article.task .task-subtasks { list-style-position: inside; list-style-type: none; }
-article.task .task-subtasks > * { position: relative; height: 25px; }
+article.task .task-subtasks > * { position: relative; min-height: 25px; }
 article.task .task-subtask.listed { text-decoration: none; list-style-type: circle; }
 article.task .task-subtask.doing { font-weight: bold; list-style-type: disc; }
 article.task .task-subtask.done { color: #006900; text-decoration: line-through; list-style-type: disc; }

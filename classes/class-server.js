@@ -70,7 +70,7 @@ function Server() {
   });
 
   self.restServer.get(/.*/, restify.serveStatic({
-    directory: './../client/public'
+    directory: './public'
   }));
   
   self.start = function() {

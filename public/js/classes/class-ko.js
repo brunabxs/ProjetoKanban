@@ -43,7 +43,7 @@ var AppViewModel = function() {
   
   self.newTask = ko.observable();
   self.prepareNewTask = function() {
-    self.newTask( new TaskViewModel({section: self.defaultSection().id()}, true) );
+    self.newTask( new TaskViewModel({id:Number(new Date()), section: self.defaultSection().id()}, true) );
     self.newTask().description.editing(true);
   };
   
